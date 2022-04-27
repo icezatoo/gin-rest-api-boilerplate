@@ -1,11 +1,12 @@
 package routes
 
 import (
-	"net/http"
+	"time"
 
 	helmet "github.com/danielkov/gin-helmet"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/heptiolabs/healthcheck"
 )
 
 func NewRouter(handler *gin.Engine) *gin.RouterGroup {
@@ -25,7 +26,16 @@ func NewRouter(handler *gin.Engine) *gin.RouterGroup {
 	// handler.GET("/swagger/*any", swaggerHandler)
 
 	// K8s probe
-	handler.GET("/healthz", func(c *gin.Context) { c.Status(http.StatusOK) })
+	health := healthcheck.NewHandler()
+
+	health.AddLivenessCheck("goroutine-threshold", healthcheck.GoroutineCountCheck(100))
+	health.AddReadinessCheck(
+		"google-dep-dns",
+		healthcheck.DNSResolveCheck("https://www.google.com/", 50*time.Millisecond))
+
+	handler.GET("/live", gin.WrapF(health.LiveEndpoint))
+	handler.GET("/ready", gin.WrapF(health.ReadyEndpoint))
+	// handler.GET("/healthz", func(c *gin.Context) { c.Status(http.StatusOK) })
 
 	// Prometheus metrics
 	// handler.GET("/metrics", gin.WrapH(promhttp.Handler()))
