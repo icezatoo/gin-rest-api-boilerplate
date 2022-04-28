@@ -7,7 +7,7 @@ type CreateUserRequest struct {
 	Enabled  bool   `form:"enabled" json:"enabled" binding:"required"`
 	Username string `form:"username" json:"username" binding:"required"`
 	Password string `form:"password" json:"password"  binding:"required"`
-	Phone    string `form:"phone" json:"phone" binding:"required"`
+	Phone    string `form:"phone" json:"phone" binding:"required,min=10,max=10"`
 }
 
 type UpdateUserRequest struct {
@@ -16,7 +16,7 @@ type UpdateUserRequest struct {
 	FullName string `form:"fullName" json:"fullName" binding:"required"`
 	LastName string `form:"lastName" json:"lastName" binding:"required"`
 	Enabled  bool   `form:"enabled" json:"enabled" binding:"required"`
-	Phone    string `form:"phone" json:"phone" binding:"required"`
+	Phone    string `form:"phone" json:"phone" binding:"required,min=10,max=10"`
 }
 
 type RequestDeleteUser struct {

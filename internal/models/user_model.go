@@ -9,7 +9,7 @@ import (
 )
 
 type User struct {
-	*gorm.Model
+	gorm.Model
 	ID       string `gorm:"primary_key" json:"id"`
 	FullName string `gorm:"full_name;varchar(255);" json:"fullName"`
 	LastName string `gorm:"last_name;varchar(255);" json:"lastName"`

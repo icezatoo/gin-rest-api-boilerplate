@@ -78,7 +78,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 	err := h.userService.Update(&request)
 
 	if err != nil {
-		if ok := customError.IsNotFoundErrorError(err); ok {
+		if ok := customError.IsNotFoundError(err); ok {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"errors": err.Error()})
 			return
 		} else {
@@ -108,7 +108,7 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 	err := h.userService.Delete(&request)
 
 	if err != nil {
-		if ok := customError.IsNotFoundErrorError(err); ok {
+		if ok := customError.IsNotFoundError(err); ok {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"errors": err.Error()})
 			return
 		} else {

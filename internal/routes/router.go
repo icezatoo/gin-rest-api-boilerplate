@@ -1,10 +1,9 @@
 package routes
 
 import (
-	"time"
-
 	helmet "github.com/danielkov/gin-helmet"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/heptiolabs/healthcheck"
 )
@@ -14,6 +13,8 @@ func NewRouter(handler *gin.Engine) *gin.RouterGroup {
 	handler.Use(gin.Logger())
 	handler.Use(gin.Recovery())
 	handler.Use(helmet.Default())
+	handler.Use(gzip.Gzip(gzip.DefaultCompression))
+
 	handler.Use(cors.New(cors.Config{
 		AllowOrigins:  []string{"*"},
 		AllowMethods:  []string{"*"},
@@ -29,13 +30,8 @@ func NewRouter(handler *gin.Engine) *gin.RouterGroup {
 	health := healthcheck.NewHandler()
 
 	health.AddLivenessCheck("goroutine-threshold", healthcheck.GoroutineCountCheck(100))
-	health.AddReadinessCheck(
-		"google-dep-dns",
-		healthcheck.DNSResolveCheck("https://www.google.com/", 50*time.Millisecond))
 
-	handler.GET("/live", gin.WrapF(health.LiveEndpoint))
-	handler.GET("/ready", gin.WrapF(health.ReadyEndpoint))
-	// handler.GET("/healthz", func(c *gin.Context) { c.Status(http.StatusOK) })
+	handler.GET("/healthz", gin.WrapF(health.LiveEndpoint))
 
 	// Prometheus metrics
 	// handler.GET("/metrics", gin.WrapH(promhttp.Handler()))

@@ -15,7 +15,7 @@ build: ${BINARY_DIR}
 	$(GOCMD) build -o $(BINARY_DIR) -v ./cmd/api
 
 run: 
-	$(GOCMD) run ./cmd/api
+	goreload --d ./cmd/api
 
 test:
 	$(GOCMD) test ./...

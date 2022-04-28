@@ -20,18 +20,13 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 }
 
 func (repo *repository) Create(request *dto.CreateUserRequest) (*models.User, error) {
+
 	var user models.User
 
-	resultEmail := repo.db.Select("*").Where("email = ?", request.Email).Find(&user)
+	result := repo.db.Select("*").Where("email = ?", request.Email).Where("username = ?", request.Username).Find(&user)
 
-	if resultEmail.RowsAffected > 0 {
-		return &user, customError.AlredyExistsError("User with this email already exists")
-	}
-
-	resultUsername := repo.db.Select("*").Where("username = ?", request.Username).Find(&user)
-
-	if resultUsername.RowsAffected > 0 {
-		return &user, customError.AlredyExistsError("User with this email already exists")
+	if result.RowsAffected > 0 {
+		return &user, customError.AlredyExistsError("User with email or username already exists")
 	}
 
 	user.FullName = request.FullName
@@ -69,7 +64,7 @@ func (repo *repository) Update(request *dto.UpdateUserRequest) error {
 	result := repo.db.Select("*").Where("id = ?", request.ID).Find(&user)
 
 	if result.RowsAffected < 0 {
-		return customError.NotFoundErrorError("User not found")
+		return customError.NotFoundError("User not found")
 	}
 
 	user.FullName = request.FullName
@@ -85,13 +80,15 @@ func (repo *repository) Update(request *dto.UpdateUserRequest) error {
 }
 
 func (repo *repository) Delete(request *dto.RequestDeleteUser) error {
-	result := repo.db.Delete(&models.User{}, "id = ?", request.ID)
+	var user models.User
 
-	if result.RowsAffected < 0 {
-		return customError.NotFoundErrorError("User not found")
+	result := repo.db.Select("id").Where("id = ?", request.ID).First(&user)
+
+	if result.RowsAffected < 1 {
+		return customError.NotFoundError("User not found")
 	}
 
-	err := repo.db.Delete(request.ID).Error
+	err := repo.db.Unscoped().Delete(&user, "id = ?", request.ID).Error
 
 	return err
 

@@ -13,12 +13,12 @@ func (e *notFoundError) Error() string {
 	return fmt.Sprintf("%v", e.errorMessage)
 }
 
-func IsNotFoundErrorError(err error) bool {
+func IsNotFoundError(err error) bool {
 	_, ok := err.(*notFoundError)
 	return ok
 }
 
-func NotFoundErrorError(errorMessage string) *notFoundError {
+func NotFoundError(errorMessage string) *notFoundError {
 	return &notFoundError{
 		errorMessage: errors.New(errorMessage),
 	}

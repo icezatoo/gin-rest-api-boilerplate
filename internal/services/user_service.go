@@ -35,13 +35,14 @@ func (s *userService) GetUsers() ([]*dto.UserReponse, error) {
 }
 
 func (s *userService) Create(request *dto.CreateUserRequest) (*dto.UserReponse, error) {
-	var userDto *dto.UserReponse
+
+	var userDto dto.UserReponse
 
 	user, err := s.repository.Create(request)
 
 	copier.Copy(&userDto, &user)
 
-	return userDto, err
+	return &userDto, err
 }
 
 func (s *userService) Update(request *dto.UpdateUserRequest) error {
@@ -52,13 +53,13 @@ func (s *userService) Update(request *dto.UpdateUserRequest) error {
 }
 
 func (s *userService) GetUserById(request *dto.RequestGetUser) (*dto.UserReponse, error) {
-	var userDto *dto.UserReponse
+	var userDto dto.UserReponse
 
 	user, err := s.repository.GetUserById(request)
 
 	copier.Copy(&userDto, &user)
 
-	return userDto, err
+	return &userDto, err
 }
 
 func (s *userService) Delete(request *dto.RequestDeleteUser) error {
