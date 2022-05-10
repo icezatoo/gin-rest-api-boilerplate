@@ -8,9 +8,10 @@ import (
 // Config stores all the configuration of application.
 // The value are read by viper from config file or env variable.
 type Config struct {
-	Post        string `mapstructure:"POST"`
-	Environment string `mapstructure:"GO_ENV"`
-	DbSource    string `mapstructure:"DB_URL"`
+	Post         string `mapstructure:"POST"`
+	Environment  string `mapstructure:"GO_ENV"`
+	DbSource     string `mapstructure:"DB_URL"`
+	jwtSecretKey string `mapstructure:"JWT_SECRET"`
 }
 
 // LoadConfig reads the configuration from config file or env variable

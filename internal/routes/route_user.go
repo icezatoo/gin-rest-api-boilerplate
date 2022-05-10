@@ -8,13 +8,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func InitUserRoutes(db *gorm.DB, route *gin.Engine) {
+func InitUserRoutes(db *gorm.DB, groupRoute *gin.RouterGroup) {
 
 	userRepository := repository.NewUserRepository(db)
 	userService := services.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(userService)
 
-	groupRoute := NewRouter(route)
 	groupRoute.GET("/users", userHandler.GetUsers)
 	groupRoute.GET("/users/:id", userHandler.GetUserById)
 	groupRoute.POST("/users", userHandler.CreateUser)

@@ -38,12 +38,13 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	var request dto.CreateUserRequest
 
 	if err := c.ShouldBind(&request); err != nil {
+
 		var verr validator.ValidationErrors
 		if errors.As(err, &verr) {
 			c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"errors": formatter.NewJSONFormatter().Descriptive(verr)})
 			return
 		}
-		c.AbortWithStatus(http.StatusUnprocessableEntity)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"errors": "Something went wrong"})
 		return
 	}
 
@@ -54,7 +55,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"errors": err.Error()})
 			return
 		} else {
-			c.AbortWithStatus(http.StatusInternalServerError)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"errors": err.Error()})
 			return
 		}
 	}
@@ -71,7 +72,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"errors": formatter.NewJSONFormatter().Descriptive(verr)})
 			return
 		}
-		c.AbortWithStatus(http.StatusUnprocessableEntity)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"errors": "Something went wrong"})
 		return
 	}
 
@@ -82,7 +83,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"errors": err.Error()})
 			return
 		} else {
-			c.AbortWithStatus(http.StatusInternalServerError)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"errors": "Something went wrong"})
 			return
 		}
 	}
@@ -101,7 +102,7 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"errors": formatter.NewJSONFormatter().Descriptive(verr)})
 			return
 		}
-		c.AbortWithStatus(http.StatusUnprocessableEntity)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"errors": "Something went wrong"})
 		return
 	}
 
@@ -112,7 +113,7 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"errors": err.Error()})
 			return
 		} else {
-			c.AbortWithStatus(http.StatusInternalServerError)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"errors": "Something went wrong"})
 			return
 		}
 	}
@@ -130,14 +131,14 @@ func (h *UserHandler) GetUserById(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"errors": formatter.NewJSONFormatter().Descriptive(verr)})
 			return
 		}
-		c.AbortWithStatus(http.StatusUnprocessableEntity)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"errors": "Something went wrong"})
 		return
 	}
 
 	user, err := h.userService.GetUserById(&request)
 
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"errors": "Something went wrong"})
 		return
 	}
 

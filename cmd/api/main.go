@@ -6,7 +6,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	helmet "github.com/danielkov/gin-helmet"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	"github.com/heptiolabs/healthcheck"
 	"github.com/icezatoo/gin-rest-api-boilerplate/config"
 	"github.com/icezatoo/gin-rest-api-boilerplate/db"
 	"github.com/icezatoo/gin-rest-api-boilerplate/internal/routes"
@@ -46,7 +50,35 @@ func SetupRouter(config *config.Config) *gin.Engine {
 
 	handler := gin.Default()
 
-	routes.InitUserRoutes(db, handler)
+	handler.Use(gin.Logger())
+	handler.Use(gin.Recovery())
+	handler.Use(helmet.Default())
+	handler.Use(gzip.Gzip(gzip.DefaultCompression))
+
+	handler.Use(cors.New(cors.Config{
+		AllowOrigins:  []string{"*"},
+		AllowMethods:  []string{"*"},
+		AllowHeaders:  []string{"*"},
+		AllowWildcard: true,
+	}))
+
+	if config.Environment != "production" && config.Environment != "test" {
+		gin.SetMode(gin.DebugMode)
+	} else if config.Environment == "test" {
+		gin.SetMode(gin.TestMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	health := healthcheck.NewHandler()
+
+	health.AddLivenessCheck("goroutine-threshold", healthcheck.GoroutineCountCheck(100))
+
+	handler.GET("/healthz", gin.WrapF(health.LiveEndpoint))
+
+	groupRoute := handler.Group("/api/v1")
+	routes.InitUserRoutes(db, groupRoute)
+	routes.InitAuthRoutes(db, groupRoute)
 
 	return handler
 }
