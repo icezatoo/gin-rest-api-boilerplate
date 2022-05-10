@@ -2,6 +2,8 @@ package auth
 
 import (
 	"encoding/json"
+	"fmt"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -48,8 +50,31 @@ func Sign(Data map[string]interface{}, SecrePublicKeyEnvName string, ExpiredAt t
 	return accessToken, nil
 }
 
+func AuthorizeJWT(SecrePublicKeyEnvName string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token, err := VerifyTokenHeader(c, SecrePublicKeyEnvName)
+
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"errors": "Something went wrong with the token"})
+			return
+		}
+
+		if !token.Valid {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+	}
+
+}
+
 func VerifyTokenHeader(ctx *gin.Context, SecrePublicKeyEnvName string) (*jwt.Token, error) {
 	tokenHeader := ctx.GetHeader("Authorization")
+
+	if tokenHeader == "" {
+		return nil, fmt.Errorf("No token found")
+	}
+
 	accessToken := strings.SplitAfter(tokenHeader, "Bearer")[1]
 	jwtSecretKey := os.Getenv(SecrePublicKeyEnvName)
 
